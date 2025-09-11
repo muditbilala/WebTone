@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>WebTone</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0b0b0e; --panel:#141418; --text:#e7e7eb; --muted:#9aa0a6;
+      --accent:#5eead4; --border:#24242b; --hover:#1b1b21; --ring:rgba(94,234,212,.35);
+    }
+    @media (prefers-color-scheme: light){
+      :root{ --bg:#ffffff; --panel:#f7f7fb; --text:#0f172a; --muted:#64748b;
+             --accent:#14b8a6; --border:#e5e7eb; --hover:#efeff6; --ring:rgba(20,184,166,.25); }
+    }
+    *{ box-sizing:border-box }
+    body{
+      width:340px; margin:0; font:14px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui;
+      color:var(--text); background:var(--bg);
+    }
+    .header{
+      display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+      position:sticky; top:0; z-index:1;
+    }
+    .logo{ width:22px; height:22px; border-radius:6px }
+    h1{ margin:0; font-size:15px; font-weight:600; letter-spacing:.2px }
+    .pill{
+      margin-left:auto; background:var(--panel); border:1px solid var(--border); color:var(--text);
+      padding:6px 10px; border-radius:10px; font-size:12px; display:flex; align-items:center; gap:6px;
+      cursor:pointer;
+    }
+    .container{ padding:12px 12px 14px; display:flex; flex-direction:column; gap:10px }
+    .card{
+      background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:10px 12px;
+    }
+    .row{ display:flex; align-items:center; justify-content:space-between; padding:8px 2px; border-radius:8px; }
+    .row:hover{ background:var(--hover); }
+    .label{ display:flex; flex-direction:column; gap:2px }
+    .title{ font-weight:600; font-size:13px }
+    .hint{ color:var(--muted); font-size:12px }
+    /* Toggle */
+    .switch{ position:relative; width:44px; height:24px; }
+    .switch input{ opacity:0; width:0; height:0 }
+    .slider{
+      position:absolute; inset:0; background:#3a3a44; border-radius:999px; transition:.2s;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    input:checked + .slider{ background:var(--accent) }
+    .slider:before{
+      content:""; position:absolute; width:18px; height:18px; left:3px; top:3px; border-radius:50%;
+      background:#fff; transition:.2s; box-shadow:0 1px 0 rgba(0,0,0,.2);
+    }
+    input:checked + .slider:before{ transform:translateX(20px) }
+    /* Range */
+    .range{ width:100%; appearance:none; height:4px; border-radius:999px; background:#3a3a44; outline:none; }
+    .range::-webkit-slider-thumb{
+      appearance:none; width:16px; height:16px; border-radius:50%; background:#fff; border:2px solid var(--accent);
+      box-shadow:0 0 0 4px var(--ring); cursor:pointer;
+    }
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
+    .footer{
+      display:flex; align-items:center; justify-content:space-between; color:var(--muted); font-size:12px; padding:0 2px;
+    }
+    .btn{
+      border:1px solid var(--border); background:transparent; color:var(--text);
+      padding:6px 10px; border-radius:8px; font-size:12px; cursor:pointer;
+    }
+    .btn:hover{ background:var(--hover) }
+    .subtle{ font-size:11px; color:var(--muted) }
+    textarea{ width:100%; min-height:56px; resize:vertical; border:1px solid var(--border); background:transparent; color:var(--text); border-radius:8px; padding:6px; }
+    input[type="password"], input[type="text"], input[type="number"], select{
+      width:100%; border:1px solid var(--border); background:transparent; color:var(--text); border-radius:8px; padding:6px;
+    }
+    .row-split{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img class="logo" src="images/icon32.png" alt="">
+    <h1>WebTone</h1>
+    <button id="viewStats" class="pill">📈 View Stats</button>
+  </div>
+
+  <div class="container">
+    <!-- Master enable + blur -->
+    <div class="card">
+      <div class="row">
+        <div class="label">
+          <div class="title">Enable WebTone</div>
+          <div class="hint">Turn on for this browser</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="enabled" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="row">
+        <div class="label">
+          <div class="title">Blur instead of hide</div>
+          <div class="hint">Tap to reveal on the page</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="blur-mode" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card">
+      <div class="row">
+        <div class="title">Global Sensitivity</div>
+        <div style="display:flex; align-items:center; gap:10px; width:56%">
+          <input id="threshold" class="range" type="range" min="0" max="1" step="0.05" />
+          <span id="thVal" class="hint" style="width:34px; text-align:right">0.65</span>
+        </div>
+      </div>
+      <div class="grid" style="margin-top:6px">
+        <div class="row"><span class="title">Cynical</span><label class="switch"><input type="checkbox" id="filter-cynical" checked /><span class="slider"></span></label></div>
+        <div class="row"><span class="title">Sarcastic</span><label class="switch"><input type="checkbox" id="filter-sarcastic" /><span class="slider"></span></label></div>
+        <div class="row"><span class="title">Threatening</span><label class="switch"><input type="checkbox" id="filter-threatening" /><span class="slider"></span></label></div>
+        <div class="row"><span class="title">Political</span><label class="switch"><input type="checkbox" id="filter-politics" /><span class="slider"></span></label></div>
+        <div class="row"><span class="title">Racist</span><label class="switch"><input type="checkbox" id="filter-racism" /><span class="slider"></span></label></div>
+      </div>
+
+      <!-- Per-category thresholds -->
+      <div class="row" style="margin-top:8px">
+        <div class="label">
+          <div class="title">Per-category thresholds</div>
+          <div class="hint">If set (>0), overrides the global sensitivity</div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="row"><span class="title">Cynical %</span><div style="display:flex;align-items:center;gap:8px;width:56%"><input id="thresh-cynical" class="range" type="range" min="0" max="100" step="5" /><span id="thresh-cynical-val" class="hint" style="width:30px;text-align:right">0</span></div></div>
+        <div class="row"><span class="title">Sarcastic %</span><div style="display:flex;align-items:center;gap:8px;width:56%"><input id="thresh-sarcastic" class="range" type="range" min="0" max="100" step="5" /><span id="thresh-sarcastic-val" class="hint" style="width:30px;text-align:right">0</span></div></div>
+        <div class="row"><span class="title">Threatening %</span><div style="display:flex;align-items:center;gap:8px;width:56%"><input id="thresh-threatening" class="range" type="range" min="0" max="100" step="5" /><span id="thresh-threatening-val" class="hint" style="width:30px;text-align:right">0</span></div></div>
+        <div class="row"><span class="title">Political %</span><div style="display:flex;align-items:center;gap:8px;width:56%"><input id="thresh-politics" class="range" type="range" min="0" max="100" step="5" /><span id="thresh-politics-val" class="hint" style="width:30px;text-align:right">0</span></div></div>
+        <div class="row"><span class="title">Racist %</span><div style="display:flex;align-items:center;gap:8px;width:56%"><input id="thresh-racism" class="range" type="range" min="0" max="100" step="5" /><span id="thresh-racism-val" class="hint" style="width:30px;text-align:right">0</span></div></div>
+      </div>
+      <div class="subtle" style="margin-top:6px">Tip: leave sliders at 0 to use the global sensitivity.</div>
+    </div>
+
+    <!-- Allowlist -->
+    <div class="card">
+      <div class="row">
+        <div class="label">
+          <div class="title">Allowlist</div>
+          <div class="hint">Never filter these accounts or keywords</div>
+        </div>
+      </div>
+      <div class="row-split">
+        <div>
+          <div class="hint" style="margin-bottom:4px">Accounts (handles, one per line)</div>
+          <textarea id="allow-handles" placeholder="elonmusk&#10;webtonedev"></textarea>
+        </div>
+        <div>
+          <div class="hint" style="margin-bottom:4px">Keywords (one per line)</div>
+          <textarea id="allow-keywords" placeholder="football&#10;recipe"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiet hours + Tools -->
+    <div class="card">
+      <div class="row">
+        <div class="label">
+          <div class="title">Quiet hours</div>
+          <div class="hint">Auto-calm at night; override on page</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="qh-enabled" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="row">
+        <div class="row-split" style="width:100%">
+          <label class="label">
+            <span class="hint">Start (0–23)</span>
+            <input id="qh-start" type="number" min="0" max="23" />
+          </label>
+          <label class="label">
+            <span class="hint">End (0–23)</span>
+            <input id="qh-end" type="number" min="0" max="23" />
+          </label>
+        </div>
+      </div>
+
+      <div class="footer" style="margin-top:6px">
+        <span>Filtered today: <b id="filteredCount">0</b></span>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button id="revealLast" class="btn" title="Ctrl/⌘+Shift+R">Reveal last</button>
+          <button id="showFiltered" class="btn">Show</button>
+          <button id="clearCache" class="btn">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Debug + Backup -->
+    <div class="card">
+      <div class="row">
+        <span class="title">Debug logs</span>
+        <label class="switch">
+          <input type="checkbox" id="debug-mode" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="row" style="gap:8px">
+        <button id="export-settings" class="btn">Export</button>
+        <label class="btn">Import
+          <input id="import-settings" type="file" accept="application/json" hidden />
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

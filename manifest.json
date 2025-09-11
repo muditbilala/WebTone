@@ -1,0 +1,80 @@
+{
+  "manifest_version": 3,
+  "name": "WebTone",
+  "version": "1.2.0",
+  "description": "Calm your feeds by hiding or blurring hostile posts. Privacy-first, local by default with optional cloud scoring.",
+
+  "action": {
+    "default_title": "WebTone",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "32": "images/icon32.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "*://x.com/*",
+    "*://twitter.com/*",
+    "*://t.co/*",
+    "*://*.youtube.com/*",
+    "*://*.reddit.com/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "*://x.com/*",
+        "*://twitter.com/*",
+        "*://*.youtube.com/*",
+        "*://*.reddit.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "commands": {
+    "toggle-webtone": {
+      "suggested_key": { "default": "Ctrl+Shift+M", "mac": "Command+Shift+M" },
+      "description": "Toggle WebTone on/off"
+    },
+    "snooze-10-mins": {
+      "suggested_key": { "default": "Ctrl+Shift+S", "mac": "Command+Shift+S" },
+      "description": "Snooze filtering for 10 minutes"
+    },
+    "reveal-last": {
+      "suggested_key": { "default": "Ctrl+Shift+R", "mac": "Command+Shift+R" },
+      "description": "Reveal last filtered post"
+    }
+  },
+
+  "web_accessible_resources": [
+    { "resources": ["images/*", "stats.html"], "matches": ["<all_urls>"] }
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://*.workers.dev https://api.openrouter.ai"
+  }
+}
